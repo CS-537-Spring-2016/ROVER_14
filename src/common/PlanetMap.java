@@ -53,6 +53,7 @@ public class PlanetMap {
 		this.planetMap[26][12] = new MapTile("O");
 		this.planetMap[26][13] = new MapTile("O");
 	*/
+		
 	
 	
 	
