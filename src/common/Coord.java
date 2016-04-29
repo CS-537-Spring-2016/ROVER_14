@@ -21,7 +21,7 @@ public class Coord {
 	
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 31). // two randomly chosen prime numbers
+        return new HashCodeBuilder(17,31). // two randomly chosen prime numbers
             // if deriving: appendSuper(super.hashCode()).
             append(xpos).
             append(ypos).
