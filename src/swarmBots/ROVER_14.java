@@ -542,14 +542,16 @@ public class ROVER_14 {
 				chemicalLocation=x_Chemical+","+y_Chemical;
 				// iterating through existing coordinates arraylist for duplicates
 				for(String loc:this.chemicalLocations){
-					if(loc.equals(chemicalLocation))
+					if(loc.equals(chemicalLocation)){
 						duplicate=true;
-					else
-						duplicate=false;
+						break;
+					}
+						
 				}
 				// adding to arraylist if no duplicates found above
 				if(!duplicate)
 					this.chemicalLocations.add(chemicalLocation);
+					duplicate=false;
 			}			
 			
 		}
