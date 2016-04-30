@@ -31,6 +31,10 @@ public class ROVER_14 {
 	int sleepTime;
 	String SERVER_ADDRESS = "localhost";
 	static final int PORT_ADDRESS = 9537;
+	
+	// Arraylist for chemical locations
+			ArrayList<String> chemicalsFetch = new ArrayList<String>();
+			ArrayList<String> chemicalLocations = new ArrayList<String>();
 
 	public ROVER_14() {
 		// constructor
@@ -94,16 +98,19 @@ public class ROVER_14 {
 		boolean blocked = false;
 
 		String[] cardinals = new String[4];
+		String currentCoord=null;
 		cardinals[0] = "N";
 		cardinals[1] = "E";
 		cardinals[2] = "S";
 		cardinals[3] = "W";
 
-		String currentDir = cardinals[0];
+		String currentDir = null;
 		Coord currentLoc = null;
 		Coord previousLoc = null;
 		
+		// Initial direction
 		goingWest=true;
+		
 
 		// start Rover controller process
 		while (true) {
@@ -128,7 +135,8 @@ public class ROVER_14 {
 			// after getting location set previous equal current to be able to check for stuckness and blocked later
 			previousLoc = currentLoc;
 			
-			
+			// getting current location in a string
+			currentCoord=currentLoc.currentCoord();
 			
 			// **** get equipment listing ****			
 			ArrayList<String> equipment = new ArrayList<String>();
@@ -143,25 +151,22 @@ public class ROVER_14 {
 			this.doScan();
 			scanMap.debugPrintMap();
 			
+			// Catching the chemical locations arraylist
+			chemicalsFetch = scanMap.chemicalLocations();
 			
+			// Calculating coordinates and adding the chemical locations to an new arraylist using a function
+			AddChemicalLocations(currentCoord, chemicalsFetch);
 			
+			for(String s:chemicalLocations){
+				System.out.println(s);
+			}
 
 			
 			// MOVING
 
 			// try moving east 1 block if blocked
 			if (blocked) {
-				/*for (int i = 0; i < 1; i++) {
-					out.println("MOVE S");
-					System.out.println("ROVER_14 request move S");
-					
-					// ***** do a SCAN *****
-					//System.out.println("ROVER_14 sending SCAN request");
-					this.doScan();
-					scanMap.debugPrintMap();
-					
-					Thread.sleep(1100);
-				}*/
+				
 				if(currentDir.equals("W")){
 					out.println("MOVE S");
 					System.out.println("ROVER_14 request move S");
@@ -432,6 +437,125 @@ public class ROVER_14 {
 
 	// ################ Support Methods ###########################
 	
+	private void AddChemicalLocations(String currentCoord,
+			ArrayList<String> chemicalsFetch) {
+		// TODO Auto-generated method stub
+		
+		//declaring variables for current x & y , chemical x & y
+		int x_Current=0, y_Current=0, x_Chemical=0, y_Chemical=0;
+		
+		boolean duplicate=false;
+		
+		String chemicalLocation=null;
+		
+		//extracting the current coordinates and putting into integer variables
+		String[] currentCoordinates = currentCoord.split(" ");
+		x_Current = Integer.parseInt(currentCoordinates[0]);
+		y_Current = Integer.parseInt(currentCoordinates[1]);
+		
+		// iterating the chemicalsfetch array list for all the chemical locations
+		for(String s:chemicalsFetch){
+			//extracting the chemical coordinates and putting into integer variables
+			String[] chemicalCoordinates = s.split(" ");
+			x_Chemical = Integer.parseInt(chemicalCoordinates[0]);
+			y_Chemical = Integer.parseInt(chemicalCoordinates[1]);
+			
+			// checking the x value of chemical coordinate in the scan map
+			// least will be 0 and max will 10 while 5 will be median
+			switch(x_Chemical){
+			case 0:
+				x_Chemical=x_Current-5;
+				break;
+			case 1:
+				x_Chemical=x_Current-4;
+				break;
+			case 2:
+				x_Chemical=x_Current-3;
+				break;
+			case 3:
+				x_Chemical=x_Current-2;
+				break;
+			case 4:
+				x_Chemical=x_Current-1;
+				break;
+			case 5:
+				x_Chemical=x_Current;
+				break;
+			case 6:
+				x_Chemical=x_Current+1;
+				break;
+			case 7:
+				x_Chemical=x_Current+2;
+				break;
+			case 8:
+				x_Chemical=x_Current+3;
+				break;
+			case 9:
+				x_Chemical=x_Current+4;
+				break;
+			case 10:
+				x_Chemical=x_Current+5;
+				break;
+			}
+			
+			// checking the y value of chemical coordinate in the scan map
+			// least will be 0 and max will 10 while 5 will be median
+			switch(y_Chemical){
+			case 0:
+				y_Chemical=y_Current-5;
+				break;
+			case 1:
+				y_Chemical=y_Current-4;
+				break;
+			case 2:
+				y_Chemical=y_Current-3;
+				break;
+			case 3:
+				y_Chemical=y_Current-2;
+				break;
+			case 4:
+				y_Chemical=y_Current-1;
+				break;
+			case 5:
+				y_Chemical=y_Current;
+				break;
+			case 6:
+				y_Chemical=y_Current+1;
+				break;
+			case 7:
+				y_Chemical=y_Current+2;
+				break;
+			case 8:
+				y_Chemical=y_Current+3;
+				break;
+			case 9:
+				y_Chemical=y_Current+4;
+				break;
+			case 10:
+				y_Chemical=y_Current+5;
+				break;
+			}
+			
+			// checking whether coordinates are not negative
+			if(x_Chemical>=0 && y_Chemical>=0){
+				//creating a string form of coordinates to store in arraylist
+				chemicalLocation=x_Chemical+","+y_Chemical;
+				// iterating through existing coordinates arraylist for duplicates
+				for(String loc:this.chemicalLocations){
+					if(loc.equals(chemicalLocation))
+						duplicate=true;
+					else
+						duplicate=false;
+				}
+				// adding to arraylist if no duplicates found above
+				if(!duplicate)
+					this.chemicalLocations.add(chemicalLocation);
+			}			
+			
+		}
+		
+	}
+
 	private void clearReadLineBuffer() throws IOException{
 		while(in.ready()){
 			//System.out.println("ROVER_14 clearing readLine()");
