@@ -82,6 +82,12 @@ public class ROVER_14 {
 		
 		boolean goingSouth = false;
 		boolean goingEast = false;
+		boolean goingWest = false;
+		boolean goingNorth = false;
+		boolean eastBlocked = false;
+		boolean westBlocked = false;
+		boolean northBlocked = false;
+		boolean southBlocked = false;
 		
 		boolean stuck = false; // just means it did not change locations between requests,
 								// could be velocity limit or obstruction etc.
@@ -97,6 +103,7 @@ public class ROVER_14 {
 		Coord currentLoc = null;
 		Coord previousLoc = null;
 		
+		goingWest=true;
 
 		// start Rover controller process
 		while (true) {
@@ -142,16 +149,97 @@ public class ROVER_14 {
 			
 			// MOVING
 
-			// try moving east 5 block if blocked
+			// try moving east 1 block if blocked
 			if (blocked) {
-				for (int i = 0; i < 5; i++) {
+				/*for (int i = 0; i < 1; i++) {
 					out.println("MOVE S");
-					//System.out.println("ROVER_14 request move E");
+					System.out.println("ROVER_14 request move S");
+					
+					// ***** do a SCAN *****
+					//System.out.println("ROVER_14 sending SCAN request");
+					this.doScan();
+					scanMap.debugPrintMap();
+					
 					Thread.sleep(1100);
+				}*/
+				if(currentDir.equals("W")){
+					out.println("MOVE S");
+					System.out.println("ROVER_14 request move S");
 				}
+				
+				// Making a U turn while blocked on going South
+				if(currentDir.equals("S")){
+					//Check if east is blocked
+					if(eastBlocked){
+//						out.println("MOVE W");
+//						System.out.println("ROVER_14 request move W");
+//						Thread.sleep(1100);
+						out.println("MOVE N");
+						System.out.println("ROVER_14 request move N");
+						
+						// Keep Moving North
+						goingNorth=!goingNorth;
+					}else{
+						out.println("MOVE E");
+						System.out.println("ROVER_14 request move E");
+						Thread.sleep(1100);
+						out.println("MOVE N");
+						System.out.println("ROVER_14 request move N");
+						
+						// Keep Moving North
+						goingNorth=!goingNorth;
+					}							
+					
+				}
+				
+				// Making a U turn while blocked on going North
+				if(currentDir.equals("N")){
+					//Check if east is blocked
+					if(eastBlocked){
+//						out.println("MOVE W");
+//						System.out.println("ROVER_14 request move W");
+//						Thread.sleep(1100);
+						out.println("MOVE S");
+						System.out.println("ROVER_14 request move S");
+						
+						//Keep moving South
+						goingSouth=!goingSouth;
+					}else {
+						out.println("MOVE E");
+						System.out.println("ROVER_14 request move E");
+						Thread.sleep(1100);
+						out.println("MOVE S");
+						System.out.println("ROVER_14 request move S");
+						
+						//Keep moving South
+						goingSouth=!goingSouth;
+					}										
+					
+				}
+				
+				
+				
+				// ***** do a SCAN *****
+				//System.out.println("ROVER_14 sending SCAN request");
+				this.doScan();
+				scanMap.debugPrintMap();
+				
+				Thread.sleep(1100);
+				
 				blocked = false;
-					//reverses direction after being blocked
-					goingEast = !goingEast;
+					
+					if (currentDir.equals("E")){
+						goingEast=!goingEast;
+						
+					}else if (currentDir.equals("W")){
+						goingWest=!goingWest;
+						
+					}else if (currentDir.equals("N")){
+						goingNorth=!goingNorth;
+						
+					}else if (currentDir.equals("S")){
+						goingSouth=!goingSouth;						
+					}else{}
 				
 			} else {
 
@@ -160,37 +248,160 @@ public class ROVER_14 {
 				MapTile[][] scanMapTiles = scanMap.getScanMap();
 				int centerIndex = (scanMap.getEdgeSize() - 1)/2;
 				// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
+				
+				// Check East
+				if(		scanMapTiles[centerIndex + 1][centerIndex].getHasRover() 
+						|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.ROCK
+						|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.SAND
+						|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.NONE){
+					eastBlocked = true;
+				}else {
+					eastBlocked=false;
+				}
+				
+				// Printing the East Block Status
+				System.out.println("East Block Status : "+eastBlocked);
+				
+				// Check West
+				if(		scanMapTiles[centerIndex-1][centerIndex].getHasRover() 
+						|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.ROCK
+						|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.SAND
+						|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.NONE){
+					westBlocked = true;
+				}else {
+					westBlocked=false;
+				}
+				
+				// Printing the West Block Status
+				System.out.println("West Block Status : "+westBlocked);
+				
+				// Check North
+				if(		scanMapTiles[centerIndex][centerIndex -1].getHasRover() 
+						|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.ROCK
+						|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.SAND
+						|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.NONE){
+					northBlocked = true;
+				}else {
+					northBlocked=false;
+				}
+				
+				// Printing the North Block Status
+				System.out.println("North Block Status : "+northBlocked);
+				
+				// Check South
+				if(		scanMapTiles[centerIndex][centerIndex +1].getHasRover() 
+						|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.ROCK
+						|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.SAND
+						|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.NONE){
+					southBlocked = true;
+				}else {
+					southBlocked=false;
+				}
+				
+				// Printing the South Block Status
+				System.out.println("South Block Status : "+southBlocked);
 
 				if (goingEast) {
 					// check scanMap to see if path is blocked to the south
 					// (scanMap may be old data by now)
-					if (scanMapTiles[centerIndex][centerIndex +1].getHasRover() 
-							|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.ROCK
-							|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.NONE) {
+					if (eastBlocked) {
 						blocked = true;
 					} else {
 						// request to server to move
-						out.println("MOVE E");
+						out.println("MOVE E");						
 						System.out.println("ROVER_14 request move E");
+						
+						// Setting other directions false
+						goingWest=false;
+						goingNorth=false;
+						goingSouth=false;
+						
+						// Setting current direction
+						
+						currentDir=cardinals[1];
 					}
 					
-				} else {
-					// check scanMap to see if path is blocked to the north
+				} else if (goingWest) {
+					// check scanMap to see if path is blocked to the south
 					// (scanMap may be old data by now)
-					System.out.println("ROVER_14 scanMapTiles[2][1].getHasRover() " + scanMapTiles[2][1].getHasRover());
-					System.out.println("ROVER_14 scanMapTiles[2][1].getTerrain() " + scanMapTiles[2][1].getTerrain().toString());
-					
-					if (scanMapTiles[centerIndex][centerIndex -1].getHasRover() 
-							|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.ROCK
-							|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.NONE) {
+					if (westBlocked) {
 						blocked = true;
 					} else {
 						// request to server to move
 						out.println("MOVE W");
 						System.out.println("ROVER_14 request move W");
+						
+						// Setting other directions false
+						goingEast=false;
+						goingNorth=false;
+						goingSouth=false;
+						
+						// Setting current direction
+						
+						currentDir=cardinals[3];
+					}
+					
+				} else if (goingNorth) {
+					// check scanMap to see if path is blocked to the south
+					// (scanMap may be old data by now)
+					if (northBlocked) {
+						blocked = true;
+					} else {
+						// request to server to move
+						out.println("MOVE N");
+						System.out.println("ROVER_14 request move N");
+						
+						// Setting other directions false
+						goingWest=false;
+						goingEast=false;
+						goingSouth=false;
+						
+						// Setting current direction
+						
+						currentDir=cardinals[0];
+					}
+					
+				} else {
+					// check scanMap to see if path is blocked to the south
+					// (scanMap may be old data by now)
+					if (southBlocked) {
+						blocked = true;
+					} else {
+						// request to server to move
+						out.println("MOVE S");
+						System.out.println("ROVER_14 request move S");
+						
+						// Setting other directions false
+						goingWest=false;
+						goingNorth=false;
+						goingEast=false;
+						
+						// Setting current direction
+						
+						currentDir=cardinals[2];
 					}
 					
 				}
+				
+				
+//				{
+//					// check scanMap to see if path is blocked to the north
+//					// (scanMap may be old data by now)
+//					System.out.println("ROVER_14 scanMapTiles[2][1].getHasRover() " + scanMapTiles[2][1].getHasRover());
+//					System.out.println("ROVER_14 scanMapTiles[2][1].getTerrain() " + scanMapTiles[2][1].getTerrain().toString());
+//					
+//					if (scanMapTiles[centerIndex][centerIndex -1].getHasRover() 
+//							|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.ROCK
+//							|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.NONE
+//							|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.SAND) {
+//						blocked = true;
+//					} else {
+//						// request to server to move
+//						out.println("MOVE W");
+//						System.out.println("ROVER_14 request move W");
+//					}
+//					
+//				}
 
 			}
 

@@ -113,6 +113,9 @@ public class SwarmServer {
 		myWorker2 = new MyGUIWorker2(mainPanel2);
 		
 		SwingUtilities.invokeLater(new Runnable() {
+			/* (non-Javadoc)
+			 * @see java.lang.Runnable#run()
+			 */
 			public void run() {
 				// currently sending it when calling the updateGUIDisplay() method
 //**			GUIdisplay.createAndShowGui(myWorker, mainPanel);
