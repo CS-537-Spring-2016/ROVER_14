@@ -74,7 +74,7 @@ public class RoverLocations {
 	public void loadExampleTestRoverLocations(){
         // place all the rovers into the map in their initial positions
         // TODO - have initial positions loaded from a file instead of hard coded
-		roverHash.put(RoverName.ROVER_01, new Coord(1,1));
+		/*roverHash.put(RoverName.ROVER_01, new Coord(1,1));
 		roverHash.put(RoverName.ROVER_02, new Coord(2,1));
 		roverHash.put(RoverName.ROVER_03, new Coord(3,1));
 		roverHash.put(RoverName.ROVER_04, new Coord(4,1));
@@ -94,10 +94,11 @@ public class RoverLocations {
 		roverHash.put(RoverName.ROVER_18, new Coord(18,1));
 		roverHash.put(RoverName.ROVER_19, new Coord(19,1));
 		roverHash.put(RoverName.ROVER_20, new Coord(20,1));
-		
+		*/
 		// test rovers
 		roverHash.put(RoverName.ROVER_00, new Coord(4,20));
 		roverHash.put(RoverName.ROVER_99, new Coord(4,7));
+		roverHash.put(RoverName.ROVER_14, new Coord(14,1));
 	}
 	
 	public void loadSmallExampleTestRoverLocations(){
@@ -105,5 +106,6 @@ public class RoverLocations {
 		// test rovers
 		roverHash.put(RoverName.ROVER_00, new Coord(4,20));
 		roverHash.put(RoverName.ROVER_99, new Coord(4,7));
+		roverHash.put(RoverName.ROVER_14, new Coord(14,1));
 	}
 }

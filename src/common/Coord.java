@@ -13,6 +13,10 @@ public class Coord {
 	public String toString() {
 		return "Coord [xpos=" + xpos + ", ypos=" + ypos + "]";
 	}
+	
+	public String currentCoord(){
+		return xpos+" "+ypos;
+	}
 
 	public Coord(int x, int y){
 		this.xpos = x;
