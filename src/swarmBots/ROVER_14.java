@@ -309,14 +309,14 @@ public class ROVER_14 {
 				if (goingEast) {
 					// check scanMap to see if path is blocked to the south
 					// (scanMap may be old data by now)
-<<<<<<< HEAD
+
 					if (scanMapTiles[centerIndex][centerIndex +1].getHasRover() 
 							|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.ROCK
 							|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.SAND
 							|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.NONE) {
-=======
+
 					if (eastBlocked) {
->>>>>>> 9ddd39fb7f7c131ddf6d79dfdc5a8b57760b7b3b
+
 						blocked = true;
 					} else {
 						// request to server to move
@@ -336,7 +336,7 @@ public class ROVER_14 {
 				} else if (goingWest) {
 					// check scanMap to see if path is blocked to the south
 					// (scanMap may be old data by now)
-<<<<<<< HEAD
+
 					System.out.println("ROVER_14 scanMapTiles[2][1].getHasRover() " + scanMapTiles[2][1].getHasRover());
 					System.out.println("ROVER_14 scanMapTiles[2][1].getTerrain() " + scanMapTiles[2][1].getTerrain().toString());
 					
@@ -344,9 +344,9 @@ public class ROVER_14 {
 							|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.ROCK
 						    || scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.SAND
 							|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.NONE) {
-=======
+
 					if (westBlocked) {
->>>>>>> 9ddd39fb7f7c131ddf6d79dfdc5a8b57760b7b3b
+
 						blocked = true;
 					} else {
 						// request to server to move
@@ -447,9 +447,9 @@ public class ROVER_14 {
 			Thread.sleep(sleepTime);
 			
 			System.out.println("ROVER_14 ------------ bottom process control --------------"); 
-
+				}
 		}
-
+			}
 	}
 
 	// ################ Support Methods ###########################
