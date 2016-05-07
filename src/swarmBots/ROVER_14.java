@@ -185,22 +185,12 @@ public class ROVER_14 {
 						// Keep Moving North
 						goingNorth=!goingNorth;
 					}else{
-						out.println("MOVE E");
-						System.out.println("ROVER_14 request move E");
-						Thread.sleep(500);
-						out.println("MOVE E");
-						System.out.println("ROVER_14 request move E");
-						Thread.sleep(500);
-						out.println("MOVE E");
-						System.out.println("ROVER_14 request move E");
-						Thread.sleep(500);
-						out.println("MOVE E");
-						System.out.println("ROVER_14 request move E");
-						Thread.sleep(500);
-						out.println("MOVE E");
-						System.out.println("ROVER_14 request move E");
-						out.println("MOVE E");
-						System.out.println("ROVER_14 request move E");
+						for(int i=0; i<9; i++)
+						{
+							out.println("MOVE E");
+							System.out.println("ROVER_14 request move E");
+							Thread.sleep(500);
+						}
 						Thread.sleep(1100);
 						out.println("MOVE N");
 						System.out.println("ROVER_14 request move N");
@@ -224,22 +214,12 @@ public class ROVER_14 {
 						//Keep moving South
 						goingSouth=!goingSouth;
 					}else {
-						out.println("MOVE E");
-						System.out.println("ROVER_14 request move E");
-						Thread.sleep(500);
-						out.println("MOVE E");
-						System.out.println("ROVER_14 request move E");
-						Thread.sleep(500);
-						out.println("MOVE E");
-						System.out.println("ROVER_14 request move E");
-						Thread.sleep(500);
-						out.println("MOVE E");
-						System.out.println("ROVER_14 request move E");
-						Thread.sleep(500);
-						out.println("MOVE E");
-						System.out.println("ROVER_14 request move E");
-						out.println("MOVE E");
-						System.out.println("ROVER_14 request move E");
+						for(int i=0; i<9; i++)
+						{
+							out.println("MOVE E");
+							System.out.println("ROVER_14 request move E");
+							Thread.sleep(500);
+						}
 						Thread.sleep(1100);
 						out.println("MOVE S");
 						System.out.println("ROVER_14 request move S");
