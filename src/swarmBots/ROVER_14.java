@@ -185,7 +185,7 @@ public class ROVER_14 {
 						// Keep Moving North
 						goingNorth=!goingNorth;
 					}else{
-						for(int i=0; i<9; i++)
+						for(int i=0; i<10; i++)
 						{
 							out.println("MOVE E");
 							System.out.println("ROVER_14 request move E");
@@ -214,7 +214,7 @@ public class ROVER_14 {
 						//Keep moving South
 						goingSouth=!goingSouth;
 					}else {
-						for(int i=0; i<9; i++)
+						for(int i=0; i<10; i++)
 						{
 							out.println("MOVE E");
 							System.out.println("ROVER_14 request move E");
