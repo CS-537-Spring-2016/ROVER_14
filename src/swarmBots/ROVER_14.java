@@ -187,9 +187,19 @@ public class ROVER_14 {
 					}else{
 						for(int i=0; i<10; i++)
 						{
-							out.println("MOVE E");
-							System.out.println("ROVER_14 request move E");
-							Thread.sleep(500);
+							// pull the MapTile array out of the ScanMap object
+							MapTile[][] scanMapTiles = scanMap.getScanMap();
+							int centerIndex = (scanMap.getEdgeSize() - 1)/2;
+							// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
+							
+							if(		scanMapTiles[centerIndex + 1][centerIndex].getHasRover() 
+									|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.ROCK
+									|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.SAND
+									|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.NONE){
+								out.println("MOVE E");
+								System.out.println("ROVER_14 request move E");
+								Thread.sleep(500);
+							}
 						}
 						Thread.sleep(1100);
 						out.println("MOVE N");
@@ -216,9 +226,19 @@ public class ROVER_14 {
 					}else {
 						for(int i=0; i<10; i++)
 						{
-							out.println("MOVE E");
-							System.out.println("ROVER_14 request move E");
-							Thread.sleep(500);
+							// pull the MapTile array out of the ScanMap object
+							MapTile[][] scanMapTiles = scanMap.getScanMap();
+							int centerIndex = (scanMap.getEdgeSize() - 1)/2;
+							// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
+							
+							if(		scanMapTiles[centerIndex + 1][centerIndex].getHasRover() 
+									|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.ROCK
+									|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.SAND
+									|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.NONE){
+								out.println("MOVE E");
+								System.out.println("ROVER_14 request move E");
+								Thread.sleep(500);
+							}
 						}
 						Thread.sleep(1100);
 						out.println("MOVE S");
