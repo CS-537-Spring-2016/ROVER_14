@@ -85,6 +85,7 @@ public class ROVER_14 {
 		String line = "";
 
 		int counter = 0;
+		int verticalrounds = 0;
 		
 		boolean goingSouth = false;
 		boolean goingEast = false;
@@ -94,6 +95,9 @@ public class ROVER_14 {
 		boolean westBlocked = false;
 		boolean northBlocked = false;
 		boolean southBlocked = false;
+		
+		boolean forward = false;
+		boolean reverse = false;
 		
 		boolean stuck = false; // just means it did not change locations between requests,
 								// could be velocity limit or obstruction etc.
@@ -112,7 +116,7 @@ public class ROVER_14 {
 		
 		// Initial direction
 		goingWest=true;
-		
+		forward=true;
 
 		// start Rover controller process
 		while (true) {
@@ -169,11 +173,12 @@ public class ROVER_14 {
 			// try moving east 1 block if blocked
 			if (blocked) {
 				
-				if(currentDir.equals("W")){
+				if(currentDir.equals("W")&&forward){
 					out.println("MOVE S");
 					System.out.println("ROVER_14 request move S");
 				}
 				
+
 				// Making a U turn while blocked on going South
 				if(currentDir.equals("S")){
 					//Check if east is blocked
@@ -192,23 +197,180 @@ public class ROVER_14 {
 						Thread.sleep(1100);
 						out.println("MOVE N");
 						System.out.println("ROVER_14 request move N");
+
+				if(forward){
+					if(verticalrounds<1){
+						// Making a U turn while blocked on going South
+						if(currentDir.equals("S")){
+							//Check if east is blocked
+							if(eastBlocked){
+//								out.println("MOVE W");
+//								System.out.println("ROVER_14 request move W");
+//								Thread.sleep(1100);
+								out.println("MOVE N");
+								System.out.println("ROVER_14 request move N");
+								
+								// Keep Moving North
+								goingNorth=!goingNorth;
+								verticalrounds++;
+							}else{
+								for(int i=0; i<10; i++)
+								{
+									// pull the MapTile array out of the ScanMap object
+									MapTile[][] scanMapTiles = scanMap.getScanMap();
+									int centerIndex = (scanMap.getEdgeSize() - 1)/2;
+									// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
+									
+									if(		!scanMapTiles[centerIndex + 1][centerIndex].getHasRover() 
+											&& scanMapTiles[centerIndex +1][centerIndex].getTerrain() != Terrain.ROCK
+											&& scanMapTiles[centerIndex +1][centerIndex].getTerrain() != Terrain.SAND
+											&& scanMapTiles[centerIndex +1][centerIndex].getTerrain() != Terrain.NONE){
+										out.println("MOVE E");
+										System.out.println("ROVER_14 request move E");
+										Thread.sleep(500);
+									}
+								}
+								Thread.sleep(1100);
+								out.println("MOVE N");
+								System.out.println("ROVER_14 request move N");
+								
+								// Keep Moving North
+								goingNorth=!goingNorth;
+								verticalrounds=0;
+							}							
+							
+						}
+
 						
-						// Keep Moving North
-						goingNorth=!goingNorth;
-					}							
-					
+						// Making a U turn while blocked on going North
+						if(currentDir.equals("N")){
+							//Check if east is blocked
+							if(eastBlocked){
+//								out.println("MOVE W");
+//								System.out.println("ROVER_14 request move W");
+//								Thread.sleep(1100);
+								out.println("MOVE S");
+								System.out.println("ROVER_14 request move S");
+								
+								//Keep moving South
+								goingSouth=!goingSouth;
+								verticalrounds ++;
+							}else {
+								for(int i=0; i<10; i++)
+								{
+									// pull the MapTile array out of the ScanMap object
+									MapTile[][] scanMapTiles = scanMap.getScanMap();
+									int centerIndex = (scanMap.getEdgeSize() - 1)/2;
+									// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
+									
+									if(		!scanMapTiles[centerIndex + 1][centerIndex].getHasRover() 
+											&& scanMapTiles[centerIndex +1][centerIndex].getTerrain() != Terrain.ROCK
+											&& scanMapTiles[centerIndex +1][centerIndex].getTerrain() != Terrain.SAND
+											&& scanMapTiles[centerIndex +1][centerIndex].getTerrain() != Terrain.NONE){
+										out.println("MOVE E");
+										System.out.println("ROVER_14 request move E");
+										Thread.sleep(500);
+									}
+								}
+								Thread.sleep(1100);
+								out.println("MOVE S");
+								System.out.println("ROVER_14 request move S");
+								
+								//Keep moving South
+								goingSouth=!goingSouth;
+								verticalrounds = 0;
+							}								
+						}	
+					}
+					else{
+						verticalrounds=0;
+						forward=!forward;
+					}
+										
 				}
-				
-				// Making a U turn while blocked on going North
-				if(currentDir.equals("N")){
-					//Check if east is blocked
-					if(eastBlocked){
-//						out.println("MOVE W");
-//						System.out.println("ROVER_14 request move W");
-//						Thread.sleep(1100);
-						out.println("MOVE S");
-						System.out.println("ROVER_14 request move S");
+				else{
+					if(verticalrounds<1){
+						// Making a U turn while blocked on going South
+						if(currentDir.equals("S")){
+							//Check if west is blocked
+							if(westBlocked){
+//								out.println("MOVE W");
+//								System.out.println("ROVER_14 request move W");
+//								Thread.sleep(1100);
+								out.println("MOVE N");
+								System.out.println("ROVER_14 request move N");
+								
+								// Keep Moving North
+								goingNorth=!goingNorth;
+								verticalrounds++;
+							}else{
+								for(int i=0; i<10; i++)
+								{
+									// pull the MapTile array out of the ScanMap object
+									MapTile[][] scanMapTiles = scanMap.getScanMap();
+									int centerIndex = (scanMap.getEdgeSize() - 1)/2;
+									// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
+									
+									if(		!scanMapTiles[centerIndex - 1][centerIndex].getHasRover() 
+											&& scanMapTiles[centerIndex - 1][centerIndex].getTerrain() != Terrain.ROCK
+											&& scanMapTiles[centerIndex - 1][centerIndex].getTerrain() != Terrain.SAND
+											&& scanMapTiles[centerIndex - 1][centerIndex].getTerrain() != Terrain.NONE){
+										out.println("MOVE W");
+										System.out.println("ROVER_14 request move W");
+										Thread.sleep(500);
+									}
+								}
+								Thread.sleep(1100);
+								out.println("MOVE N");
+								System.out.println("ROVER_14 request move N");
+								
+								// Keep Moving North
+								goingNorth=!goingNorth;
+								verticalrounds=0;
+							}							
+							
+						}
 						
+						// Making a U turn while blocked on going North
+						if(currentDir.equals("N")){
+							//Check if east is blocked
+							if(westBlocked){
+//								out.println("MOVE W");
+//								System.out.println("ROVER_14 request move W");
+//								Thread.sleep(1100);
+								out.println("MOVE S");
+								System.out.println("ROVER_14 request move S");
+								
+								//Keep moving South
+								goingSouth=!goingSouth;
+								verticalrounds ++;
+							}else {
+								for(int i=0; i<10; i++)
+								{
+									// pull the MapTile array out of the ScanMap object
+									MapTile[][] scanMapTiles = scanMap.getScanMap();
+									int centerIndex = (scanMap.getEdgeSize() - 1)/2;
+									// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
+									
+									if(		!scanMapTiles[centerIndex - 1][centerIndex].getHasRover() 
+											&& scanMapTiles[centerIndex - 1][centerIndex].getTerrain() != Terrain.ROCK
+											&& scanMapTiles[centerIndex - 1][centerIndex].getTerrain() != Terrain.SAND
+											&& scanMapTiles[centerIndex - 1][centerIndex].getTerrain() != Terrain.NONE){
+										out.println("MOVE W");
+										System.out.println("ROVER_14 request move W");
+										Thread.sleep(500);
+									}
+								}
+								Thread.sleep(1100);
+								out.println("MOVE S");
+								System.out.println("ROVER_14 request move S");
+								
+								//Keep moving South
+								goingSouth=!goingSouth;
+								verticalrounds=0;
+							}										
+						
+
 						//Keep moving South
 						goingSouth=!goingSouth;
 					}else {
@@ -217,11 +379,15 @@ public class ROVER_14 {
 						Thread.sleep(1100);
 						out.println("MOVE S");
 						System.out.println("ROVER_14 request move S");
+
+						}
 						
-						//Keep moving South
-						goingSouth=!goingSouth;
-					}										
-					
+					}
+					else{
+						verticalrounds=0;
+						forward=!forward;
+					}
+									
 				}
 				
 				
@@ -248,7 +414,9 @@ public class ROVER_14 {
 						goingSouth=!goingSouth;						
 					}else{}
 				
-			} else {
+			}
+				}
+				else {
 
 
 				// pull the MapTile array out of the ScanMap object
@@ -452,6 +620,7 @@ public class ROVER_14 {
 				}
 		}
 			}
+		}
 	}
 
 	// ################ Support Methods ###########################
@@ -472,7 +641,7 @@ public class ROVER_14 {
 		x_Current = Integer.parseInt(currentCoordinates[0]);
 		y_Current = Integer.parseInt(currentCoordinates[1]);
 		
-		// iterating the chemicalsfetch array list for all the chemical locations
+		// iterating the chemicals fetch array list for all the chemical locations
 		for(String s:chemicalsFetch){
 			//extracting the chemical coordinates and putting into integer variables
 			String[] chemicalCoordinates = s.split(" ");
@@ -567,7 +736,7 @@ public class ROVER_14 {
 					}
 						
 				}
-				// adding to arraylist if no duplicates found above
+				// adding the chemical locations to arraylist if no duplicates found above
 				if(!duplicate)
 					this.chemicalLocations.add(chemicalLocation);
 					duplicate=false;
@@ -661,7 +830,7 @@ public class ROVER_14 {
 	}
 	
 
-	// this takes the LOC response string, parses out the x and x values and
+	// this takes the LOC response string, parses out the x and y values and
 	// returns a Coord object
 	public static Coord extractLOC(String sStr) {
 		sStr = sStr.substring(4);
