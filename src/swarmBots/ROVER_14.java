@@ -192,10 +192,10 @@ public class ROVER_14 {
 							int centerIndex = (scanMap.getEdgeSize() - 1)/2;
 							// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
 							
-							if(		scanMapTiles[centerIndex + 1][centerIndex].getHasRover() 
-									|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.ROCK
-									|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.SAND
-									|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.NONE){
+							if(		!scanMapTiles[centerIndex + 1][centerIndex].getHasRover() 
+									&& scanMapTiles[centerIndex +1][centerIndex].getTerrain() != Terrain.ROCK
+									&& scanMapTiles[centerIndex +1][centerIndex].getTerrain() != Terrain.SAND
+									&& scanMapTiles[centerIndex +1][centerIndex].getTerrain() != Terrain.NONE){
 								out.println("MOVE E");
 								System.out.println("ROVER_14 request move E");
 								Thread.sleep(500);
@@ -231,10 +231,10 @@ public class ROVER_14 {
 							int centerIndex = (scanMap.getEdgeSize() - 1)/2;
 							// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
 							
-							if(		scanMapTiles[centerIndex + 1][centerIndex].getHasRover() 
-									|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.ROCK
-									|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.SAND
-									|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.NONE){
+							if(		!scanMapTiles[centerIndex + 1][centerIndex].getHasRover() 
+									&& scanMapTiles[centerIndex +1][centerIndex].getTerrain() != Terrain.ROCK
+									&& scanMapTiles[centerIndex +1][centerIndex].getTerrain() != Terrain.SAND
+									&& scanMapTiles[centerIndex +1][centerIndex].getTerrain() != Terrain.NONE){
 								out.println("MOVE E");
 								System.out.println("ROVER_14 request move E");
 								Thread.sleep(500);
