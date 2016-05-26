@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.net.Socket;
 import java.util.*;
 
@@ -46,7 +47,7 @@ public class ROVER_14 {
     
     
   //Blocked cells are just null Cell values in grid
-    static Cell [][] grid = new Cell[100][60];
+    static Cell [][] grid = new Cell[60][100];
     
     static PriorityQueue<Cell> open;
      
@@ -126,6 +127,8 @@ public class ROVER_14 {
 	boolean southBlocked = false;
 	
 	
+	
+	
 	/**
 	 * Connects to the server then enters the processing loop.
 	 */
@@ -189,9 +192,25 @@ public class ROVER_14 {
 		
 		/// Astar
        
+		 //Reset Grid
+        grid = new Cell[60][100];
+        closed = new boolean[60][100];
+        open = new PriorityQueue<>((Object o1, Object o2) -> {
+             Cell c1 = (Cell)o1;
+             Cell c2 = (Cell)o2;
+
+             return c1.finalCost<c2.finalCost?-1:
+                     c1.finalCost>c2.finalCost?1:0;
+         });
 		
-		
-		
+        for(int i=0;i<60;++i){
+            for(int j=0;j<100;++j){
+                grid[i][j] = new Cell(i, j);
+                grid[i][j].heuristicCost = Math.abs(i-endI)+Math.abs(j-endJ);
+//                System.out.print(grid[i][j].heuristicCost+" ");
+            }
+//            System.out.println();
+         }
 		
 		
 		
@@ -253,9 +272,11 @@ public class ROVER_14 {
 			target_y=targetLoc.ypos;
 			
 			
+			// Create array list for blocked cells
+			List<Coord> blockedcells = new ArrayList<Coord>();
 			
 			
-			
+					
 			
 			
 			// **** get equipment listing ****			
@@ -281,243 +302,15 @@ public class ROVER_14 {
 				System.out.println(s);
 			}
 			
-			
-
-
-			
+						
 			// MOVING
-
-			// try moving east 1 block if blocked
-			if (blocked) {
-				
-				if(currentDir.equals("W")&&forward){
-					out.println("MOVE S");
-					System.out.println("ROVER_14 request move S");
-				}
-				else{
-					
-					if(forward){
-						if(verticalrounds<2){
-							// Making a U turn while blocked on going South
-							if(currentDir.equals("S")){
-								//Check if east is blocked
-								if(eastBlocked){
-//									out.println("MOVE W");
-//									System.out.println("ROVER_14 request move W");
-//									Thread.sleep(1100);
-									out.println("MOVE N");
-									System.out.println("ROVER_14 request move N");
-									
-									// Keep Moving North
-									goingNorth=!goingNorth;
-									verticalrounds++;
-								}else{
-									for(int i=0; i<7; i++)
-									{
-										// pull the MapTile array out of the ScanMap object
-										MapTile[][] scanMapTiles1 = scanMap.getScanMap();
-										int centerIndex1 = (scanMap.getEdgeSize() - 1)/2;
-										// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
-										
-										// Check East
-										if(		scanMapTiles1[centerIndex1 + 1][centerIndex1].getHasRover() 
-												|| scanMapTiles1[centerIndex1 +1][centerIndex1].getTerrain() == Terrain.ROCK
-												|| scanMapTiles1[centerIndex1 +1][centerIndex1].getTerrain() == Terrain.SAND
-												|| scanMapTiles1[centerIndex1 +1][centerIndex1].getTerrain() == Terrain.NONE){
-											System.out.println("HEllo");
-											// Do nothing
-										}else {
-											out.println("MOVE E");
-											System.out.println("ROVER_14 request move E");
-											Thread.sleep(500);
-										}
-										
-										// Printing the East Block Status
-										System.out.println("East Block Status : "+eastBlocked);
-									}
-									Thread.sleep(1100);
-									out.println("MOVE N");
-									System.out.println("ROVER_14 request move N");
-									
-									// Keep Moving North
-									goingNorth=!goingNorth;
-									verticalrounds=0;
-								}							
-								
-							}
-							
-							// Making a U turn while blocked on going North
-							if(currentDir.equals("N")){
-								//Check if east is blocked
-								if(eastBlocked){
-//									out.println("MOVE W");
-//									System.out.println("ROVER_14 request move W");
-//									Thread.sleep(1100);
-									out.println("MOVE S");
-									System.out.println("ROVER_14 request move S");
-									
-									//Keep moving South
-									goingSouth=!goingSouth;
-									verticalrounds ++;
-								}else {
-									for(int i=0; i<7; i++)
-									{
-										// pull the MapTile array out of the ScanMap object
-										MapTile[][] scanMapTiles1 = scanMap.getScanMap();
-										int centerIndex1 = (scanMap.getEdgeSize() - 1)/2;
-										// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
-										
-										if(		!scanMapTiles1[centerIndex1 + 1][centerIndex1].getHasRover() 
-												&& scanMapTiles1[centerIndex1 +1][centerIndex1].getTerrain() != Terrain.ROCK
-												&& scanMapTiles1[centerIndex1 +1][centerIndex1].getTerrain() != Terrain.SAND
-												&& scanMapTiles1[centerIndex1 +1][centerIndex1].getTerrain() != Terrain.NONE){
-											out.println("MOVE E");
-											System.out.println("ROVER_14 request move E");
-											Thread.sleep(500);
-										}
-									}
-									Thread.sleep(1100);
-									out.println("MOVE S");
-									System.out.println("ROVER_14 request move S");
-									
-									//Keep moving South
-									goingSouth=!goingSouth;
-									verticalrounds = 0;
-								}								
-							}	
-						}
-						else{
-							verticalrounds=0;
-							forward=!forward;
-						}
-											
-					}
-					else{
-						if(verticalrounds<2){
-							// Making a U turn while blocked on going South
-							if(currentDir.equals("S")){
-								//Check if west is blocked
-								if(westBlocked){
-//									out.println("MOVE W");
-//									System.out.println("ROVER_14 request move W");
-//									Thread.sleep(1100);
-									out.println("MOVE N");
-									System.out.println("ROVER_14 request move N");
-									
-									// Keep Moving North
-									goingNorth=!goingNorth;
-									verticalrounds++;
-								}else{
-									for(int i=0; i<10; i++)
-									{
-										// pull the MapTile array out of the ScanMap object
-										MapTile[][] scanMapTiles1 = scanMap.getScanMap();
-										int centerIndex1 = (scanMap.getEdgeSize() - 1)/2;
-										// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
-										
-										
-										if(		!scanMapTiles1[centerIndex1 - 1][centerIndex1].getHasRover() 
-												&& scanMapTiles1[centerIndex1 - 1][centerIndex1].getTerrain() != Terrain.ROCK
-												&& scanMapTiles1[centerIndex1 - 1][centerIndex1].getTerrain() != Terrain.SAND
-												&& scanMapTiles1[centerIndex1 - 1][centerIndex1].getTerrain() != Terrain.NONE){
-											out.println("MOVE W");
-											System.out.println("ROVER_14 request move W");
-											Thread.sleep(500);
-										}
-									}
-									Thread.sleep(1100);
-									out.println("MOVE N");
-									System.out.println("ROVER_14 request move N");
-									
-									// Keep Moving North
-									goingNorth=!goingNorth;
-									verticalrounds=0;
-								}							
-								
-							}
-							
-							// Making a U turn while blocked on going North
-							if(currentDir.equals("N")){
-								//Check if east is blocked
-								if(westBlocked){
-//									out.println("MOVE W");
-//									System.out.println("ROVER_14 request move W");
-//									Thread.sleep(1100);
-									out.println("MOVE S");
-									System.out.println("ROVER_14 request move S");
-									
-									//Keep moving South
-									goingSouth=!goingSouth;
-									verticalrounds ++;
-								}else {
-									for(int i=0; i<10; i++)
-									{
-										// pull the MapTile array out of the ScanMap object
-										MapTile[][] scanMapTiles1 = scanMap.getScanMap();
-										int centerIndex1 = (scanMap.getEdgeSize() - 1)/2;
-										// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
-										
-										if(		!scanMapTiles1[centerIndex1 - 1][centerIndex1].getHasRover() 
-												&& scanMapTiles1[centerIndex1 - 1][centerIndex1].getTerrain() != Terrain.ROCK
-												&& scanMapTiles1[centerIndex1 - 1][centerIndex1].getTerrain() != Terrain.SAND
-												&& scanMapTiles1[centerIndex1 - 1][centerIndex1].getTerrain() != Terrain.NONE){
-											out.println("MOVE W");
-											System.out.println("ROVER_14 request move W");
-											Thread.sleep(500);
-										}
-									}
-									Thread.sleep(1100);
-									out.println("MOVE S");
-									System.out.println("ROVER_14 request move S");
-									
-									//Keep moving South
-									goingSouth=!goingSouth;
-									verticalrounds=0;
-								}										
-							
-							}
-							
-						}
-						else{
-							verticalrounds=0;
-							forward=!forward;
-						}
-										
-					}
-				}
-				
-				
-				
-				
-				
-				// ***** do a SCAN *****
-				//System.out.println("ROVER_14 sending SCAN request");
-				this.doScan();
-				scanMap.debugPrintMap();
-				
-				Thread.sleep(1100);
-				
-				blocked = false;
-					
-					if (currentDir.equals("E")){
-						goingEast=!goingEast;
-						
-					}else if (currentDir.equals("W")){
-						goingWest=!goingWest;
-						
-					}else if (currentDir.equals("N")){
-						goingNorth=!goingNorth;
-						
-					}else if (currentDir.equals("S")){
-						goingSouth=!goingSouth;						
-					}else{}
-				
-			} else {
 				
 				// pull the MapTile array out of the ScanMap object
 				MapTile[][] scanMapTiles = scanMap.getScanMap();
 				int centerIndex = (scanMap.getEdgeSize() - 1)/2;
 				// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
+				
+				
 				
 				// printing center index
 				System.out.println("****************** Center Index**************");
@@ -659,7 +452,6 @@ public class ROVER_14 {
 					
 				}
 
-			}
 
 			// another call for current location
 			out.println("LOC");
@@ -702,8 +494,10 @@ public class ROVER_14 {
         
         while(true){ 
             current = open.poll();
+            
+            
             if(current==null)break;
-            closed[current.i][current.j]=true; 
+            closed[current.j][current.i]=true; 
 
             if(current.equals(grid[endI][endJ])){
                 return; 
@@ -760,8 +554,11 @@ public class ROVER_14 {
     ei, ej = end location's x and y coordinates
     int[][] blocked = array containing inaccessible cell coordinates
     */
-    public static void test(int tCase, int x, int y, int si, int sj, int ei, int ej, int[][] blocked){
-           System.out.println("\n\nTest Case #"+tCase);
+    public static List<Coord> test(int si, int sj, int ei, int ej, ArrayList<Coord> blockedcells){
+    	
+    	List<Coord> path = new ArrayList<Coord>();
+    	
+           /*System.out.println("\n\nTest Case #"+tCase);
             //Reset
            grid = new Cell[x][y];
            closed = new boolean[x][y];
@@ -771,32 +568,36 @@ public class ROVER_14 {
 
                 return c1.finalCost<c2.finalCost?-1:
                         c1.finalCost>c2.finalCost?1:0;
-            });
+            });*/
            //Set start position
            setStartCell(si, sj);  //Setting to 0,0 by default. Will be useful for the UI part
            
            //Set End Location
            setEndCell(ei, ej); 
            
-           for(int i=0;i<x;++i){
+/*           for(int i=0;i<x;++i){
               for(int j=0;j<y;++j){
                   grid[i][j] = new Cell(i, j);
                   grid[i][j].heuristicCost = Math.abs(i-endI)+Math.abs(j-endJ);
 //                  System.out.print(grid[i][j].heuristicCost+" ");
               }
 //              System.out.println();
-           }
+           }*/
            grid[si][sj].finalCost = 0;
            
            /*
              Set blocked cells. Simply set the cell values to null
              for blocked cells.
            */
-           for(int i=0;i<blocked.length;++i){
-               setBlocked(blocked[i][0], blocked[i][1]);
+           for(Coord temp : blockedcells){
+        	   setBlocked(temp.ypos, temp.xpos);
            }
            
-           //Display initial map
+          /* for(int i=0;i<blocked.length;++i){
+               setBlocked(blocked[i][0], blocked[i][1]);
+           }*/
+           
+          /* //Display initial map
            System.out.println("Grid: ");
             for(int i=0;i<x;++i){
                 for(int j=0;j<y;++j){
@@ -808,9 +609,10 @@ public class ROVER_14 {
                 System.out.println();
             } 
             System.out.println();
-           
+           */
            AStar(); 
-           System.out.println("\nScores for cells: ");
+           
+           /*System.out.println("\nScores for cells: ");
            for(int i=0;i<x;++i){
                for(int j=0;j<x;++j){
                    if(grid[i][j]!=null)System.out.printf("%-3d ", grid[i][j].finalCost);
@@ -818,27 +620,48 @@ public class ROVER_14 {
                }
                System.out.println();
            }
-           System.out.println();
+           System.out.println();*/
             
            if(closed[endI][endJ]){
                //Trace back the path 
-                System.out.println("Path: ");
+                //System.out.println("Path: ");
                 Cell current = grid[endI][endJ];
                 System.out.print(current);
                 while(current.parent!=null){
-                    System.out.print(" -> "+current.parent);
+                	
+                	path.add(new Coord(current.j,current.i));
+                	
+                    //System.out.print(" -> "+current.parent);
                     current = current.parent;
-                } 
+                }
+                Collections.reverse(path);
                 System.out.println();
            }else System.out.println("No possible path");
+           
+           System.out.println(path);
+           
+           /*for(Coord next : path){
+        	   
+           }*/
+           
+           return path;
+    }
+    
+    private void MoveOnPath(List<Coord> path){
+    	
+    	// scan the path list and move the rover along the path
+    	
+    	//for(Coord next)
     }
 	
 	
-	private void UpdateBlockCells(){
+	private List<Coord> UpdateBlockCells(int x, int y){
+		// current x, y
+		int curr_x = x;
+		int curr_y = y;
 		
 		// Create array list for blocked cells
-		ArrayList<Coord> blockcells = new ArrayList<Coord>();
-		
+		List<Coord> blockedcells = new ArrayList<Coord>();
 		
 		// pull the MapTile array out of the ScanMap object
 		MapTile[][] scanMapTiles = scanMap.getScanMap();
@@ -851,6 +674,7 @@ public class ROVER_14 {
 				|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.SAND
 				|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.NONE){
 			eastBlocked = true;
+			blockedcells.add(new Coord(curr_x+1, curr_y));
 		}else {
 			eastBlocked=false;
 		}
@@ -864,6 +688,7 @@ public class ROVER_14 {
 				|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.SAND
 				|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.NONE){
 			westBlocked = true;
+			blockedcells.add(new Coord(curr_x-1, curr_y));
 		}else {
 			westBlocked=false;
 		}
@@ -877,6 +702,7 @@ public class ROVER_14 {
 				|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.SAND
 				|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.NONE){
 			northBlocked = true;
+			blockedcells.add(new Coord(curr_x, curr_y-1));
 		}else {
 			northBlocked=false;
 		}
@@ -890,14 +716,15 @@ public class ROVER_14 {
 				|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.SAND
 				|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.NONE){
 			southBlocked = true;
+			blockedcells.add(new Coord(curr_x, curr_y+1));
 		}else {
 			southBlocked=false;
 		}
 		
 		// Printing the South Block Status
 		System.out.println("South Block Status : "+southBlocked);
-
-
+		
+		return blockedcells;
 	}
 	
 	private void AddChemicalLocations(String currentCoord,
