@@ -31,6 +31,10 @@ public class ROVER_14 {
 	int sleepTime;
 	String SERVER_ADDRESS = "localhost";
 	static final int PORT_ADDRESS = 9537;
+	
+	// Arraylist for chemical locations
+			ArrayList<String> chemicalsFetch = new ArrayList<String>();
+			ArrayList<String> chemicalLocations = new ArrayList<String>();
 
 	public ROVER_14() {
 		// constructor
@@ -82,20 +86,30 @@ public class ROVER_14 {
 		
 		boolean goingSouth = false;
 		boolean goingEast = true;
+		boolean goingWest = false;
+		boolean goingNorth = false;
+		boolean eastBlocked = false;
+		boolean westBlocked = false;
+		boolean northBlocked = false;
+		boolean southBlocked = false;
 		
 		boolean stuck = false; // just means it did not change locations between requests,
 								// could be velocity limit or obstruction etc.
 		boolean blocked = false;
 
 		String[] cardinals = new String[4];
+		String currentCoord=null;
 		cardinals[0] = "N";
 		cardinals[1] = "E";
 		cardinals[2] = "S";
 		cardinals[3] = "W";
 
-		String currentDir = cardinals[0];
+		String currentDir = null;
 		Coord currentLoc = null;
 		Coord previousLoc = null;
+		
+		// Initial direction
+		goingWest=true;
 		
 
 		// start Rover controller process
@@ -121,7 +135,8 @@ public class ROVER_14 {
 			// after getting location set previous equal current to be able to check for stuckness and blocked later
 			previousLoc = currentLoc;
 			
-			
+			// getting current location in a string
+			currentCoord=currentLoc.currentCoord();
 			
 			// **** get equipment listing ****			
 			ArrayList<String> equipment = new ArrayList<String>();
@@ -136,22 +151,100 @@ public class ROVER_14 {
 			this.doScan();
 			scanMap.debugPrintMap();
 			
+			// Catching the chemical locations arraylist
+			chemicalsFetch = scanMap.chemicalLocations();
 			
+			// Calculating coordinates and adding the chemical locations to an new arraylist using a function
+			AddChemicalLocations(currentCoord, chemicalsFetch);
 			
+			for(String s:chemicalLocations){
+				System.out.println(s);
+			}
 
 			
 			// MOVING
 
-			// try moving east 5 block if blocked
+			// try moving east 1 block if blocked
 			if (blocked) {
-				for (int i = 0; i < 5; i++) {
+				
+				if(currentDir.equals("W")){
 					out.println("MOVE S");
-					//System.out.println("ROVER_14 request move E");
-					Thread.sleep(1100);
+					System.out.println("ROVER_14 request move S");
 				}
+				
+				// Making a U turn while blocked on going South
+				if(currentDir.equals("S")){
+					//Check if east is blocked
+					if(eastBlocked){
+//						out.println("MOVE W");
+//						System.out.println("ROVER_14 request move W");
+//						Thread.sleep(1100);
+						out.println("MOVE N");
+						System.out.println("ROVER_14 request move N");
+						
+						// Keep Moving North
+						goingNorth=!goingNorth;
+					}else{
+						out.println("MOVE E");
+						System.out.println("ROVER_14 request move E");
+						Thread.sleep(1100);
+						out.println("MOVE N");
+						System.out.println("ROVER_14 request move N");
+						
+						// Keep Moving North
+						goingNorth=!goingNorth;
+					}							
+					
+				}
+				
+				// Making a U turn while blocked on going North
+				if(currentDir.equals("N")){
+					//Check if east is blocked
+					if(eastBlocked){
+//						out.println("MOVE W");
+//						System.out.println("ROVER_14 request move W");
+//						Thread.sleep(1100);
+						out.println("MOVE S");
+						System.out.println("ROVER_14 request move S");
+						
+						//Keep moving South
+						goingSouth=!goingSouth;
+					}else {
+						out.println("MOVE E");
+						System.out.println("ROVER_14 request move E");
+						Thread.sleep(1100);
+						out.println("MOVE S");
+						System.out.println("ROVER_14 request move S");
+						
+						//Keep moving South
+						goingSouth=!goingSouth;
+					}										
+					
+				}
+				
+				
+				
+				// ***** do a SCAN *****
+				//System.out.println("ROVER_14 sending SCAN request");
+				this.doScan();
+				scanMap.debugPrintMap();
+				
+				Thread.sleep(1100);
+				
 				blocked = false;
-					//reverses direction after being blocked
-					goingEast = !goingEast;
+					
+					if (currentDir.equals("E")){
+						goingEast=!goingEast;
+						
+					}else if (currentDir.equals("W")){
+						goingWest=!goingWest;
+						
+					}else if (currentDir.equals("N")){
+						goingNorth=!goingNorth;
+						
+					}else if (currentDir.equals("S")){
+						goingSouth=!goingSouth;						
+					}else{}
 				
 			} else {
 
@@ -160,18 +253,77 @@ public class ROVER_14 {
 				MapTile[][] scanMapTiles = scanMap.getScanMap();
 				int centerIndex = (scanMap.getEdgeSize() - 1)/2;
 				// tile S = y + 1; N = y - 1; E = x + 1; W = x - 1
+				
+				// Check East
+				if(		scanMapTiles[centerIndex + 1][centerIndex].getHasRover() 
+						|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.ROCK
+						|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.SAND
+						|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.NONE){
+					eastBlocked = true;
+				}else {
+					eastBlocked=false;
+				}
+				
+				// Printing the East Block Status
+				System.out.println("East Block Status : "+eastBlocked);
+				
+				// Check West
+				if(		scanMapTiles[centerIndex-1][centerIndex].getHasRover() 
+						|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.ROCK
+						|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.SAND
+						|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.NONE){
+					westBlocked = true;
+				}else {
+					westBlocked=false;
+				}
+				
+				// Printing the West Block Status
+				System.out.println("West Block Status : "+westBlocked);
+				
+				// Check North
+				if(		scanMapTiles[centerIndex][centerIndex -1].getHasRover() 
+						|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.ROCK
+						|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.SAND
+						|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.NONE){
+					northBlocked = true;
+				}else {
+					northBlocked=false;
+				}
+				
+				// Printing the North Block Status
+				System.out.println("North Block Status : "+northBlocked);
+				
+				// Check South
+				if(		scanMapTiles[centerIndex][centerIndex +1].getHasRover() 
+						|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.ROCK
+						|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.SAND
+						|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.NONE){
+					southBlocked = true;
+				}else {
+					southBlocked=false;
+				}
+				
+				// Printing the South Block Status
+				System.out.println("South Block Status : "+southBlocked);
 
 				if (goingEast) {
 					// check scanMap to see if path is blocked to the south
 					// (scanMap may be old data by now)
-					if (scanMapTiles[centerIndex][centerIndex +1].getHasRover() 
-							|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.ROCK
-							|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.NONE) {
+					if (eastBlocked) {
 						blocked = true;
 					} else {
 						// request to server to move
-						out.println("MOVE E");
+						out.println("MOVE E");						
 						System.out.println("ROVER_14 request move E");
+						
+						// Setting other directions false
+						goingWest=false;
+						goingNorth=false;
+						goingSouth=false;
+						
+						// Setting current direction
+						
+						currentDir=cardinals[1];
 					}
 					if (scanMapTiles[centerIndex][centerIndex +1].getHasRover() 
 							|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.SAND
@@ -183,20 +335,64 @@ public class ROVER_14 {
 						System.out.println("ROVER_14 request move E");
 					}
 					
-				} else {
-					// check scanMap to see if path is blocked to the north
+				} else if (goingWest) {
+					// check scanMap to see if path is blocked to the south
 					// (scanMap may be old data by now)
-					System.out.println("ROVER_14 scanMapTiles[2][1].getHasRover() " + scanMapTiles[2][1].getHasRover());
-					System.out.println("ROVER_14 scanMapTiles[2][1].getTerrain() " + scanMapTiles[2][1].getTerrain().toString());
-					
-					if (scanMapTiles[centerIndex][centerIndex -1].getHasRover() 
-							|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.ROCK
-							|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.NONE) {
+					if (westBlocked) {
 						blocked = true;
 					} else {
 						// request to server to move
 						out.println("MOVE W");
 						System.out.println("ROVER_14 request move W");
+						
+						// Setting other directions false
+						goingEast=false;
+						goingNorth=false;
+						goingSouth=false;
+						
+						// Setting current direction
+						
+						currentDir=cardinals[3];
+					}
+					
+				} else if (goingNorth) {
+					// check scanMap to see if path is blocked to the south
+					// (scanMap may be old data by now)
+					if (northBlocked) {
+						blocked = true;
+					} else {
+						// request to server to move
+						out.println("MOVE N");
+						System.out.println("ROVER_14 request move N");
+						
+						// Setting other directions false
+						goingWest=false;
+						goingEast=false;
+						goingSouth=false;
+						
+						// Setting current direction
+						
+						currentDir=cardinals[0];
+					}
+					
+				} else {
+					// check scanMap to see if path is blocked to the south
+					// (scanMap may be old data by now)
+					if (southBlocked) {
+						blocked = true;
+					} else {
+						// request to server to move
+						out.println("MOVE S");
+						System.out.println("ROVER_14 request move S");
+						
+						// Setting other directions false
+						goingWest=false;
+						goingNorth=false;
+						goingEast=false;
+						
+						// Setting current direction
+						
+						currentDir=cardinals[2];
 					}
 					if (scanMapTiles[centerIndex][centerIndex -1].getHasRover() 
 							|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.ROCK
@@ -208,6 +404,26 @@ public class ROVER_14 {
 						System.out.println("ROVER_14 request move W");
 					}
 				}
+				
+				
+//				{
+//					// check scanMap to see if path is blocked to the north
+//					// (scanMap may be old data by now)
+//					System.out.println("ROVER_14 scanMapTiles[2][1].getHasRover() " + scanMapTiles[2][1].getHasRover());
+//					System.out.println("ROVER_14 scanMapTiles[2][1].getTerrain() " + scanMapTiles[2][1].getTerrain().toString());
+//					
+//					if (scanMapTiles[centerIndex][centerIndex -1].getHasRover() 
+//							|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.ROCK
+//							|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.NONE
+//							|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.SAND) {
+//						blocked = true;
+//					} else {
+//						// request to server to move
+//						out.println("MOVE W");
+//						System.out.println("ROVER_14 request move W");
+//					}
+//					
+//				}
 
 			}
 
@@ -238,6 +454,127 @@ public class ROVER_14 {
 
 	// ################ Support Methods ###########################
 	
+	private void AddChemicalLocations(String currentCoord,
+			ArrayList<String> chemicalsFetch) {
+		// TODO Auto-generated method stub
+		
+		//declaring variables for current x & y , chemical x & y
+		int x_Current=0, y_Current=0, x_Chemical=0, y_Chemical=0;
+		
+		boolean duplicate=false;
+		
+		String chemicalLocation=null;
+		
+		//extracting the current coordinates and putting into integer variables
+		String[] currentCoordinates = currentCoord.split(" ");
+		x_Current = Integer.parseInt(currentCoordinates[0]);
+		y_Current = Integer.parseInt(currentCoordinates[1]);
+		
+		// iterating the chemicalsfetch array list for all the chemical locations
+		for(String s:chemicalsFetch){
+			//extracting the chemical coordinates and putting into integer variables
+			String[] chemicalCoordinates = s.split(" ");
+			x_Chemical = Integer.parseInt(chemicalCoordinates[0]);
+			y_Chemical = Integer.parseInt(chemicalCoordinates[1]);
+			
+			// checking the x value of chemical coordinate in the scan map
+			// least will be 0 and max will 10 while 5 will be median
+			switch(x_Chemical){
+			case 0:
+				x_Chemical=x_Current-5;
+				break;
+			case 1:
+				x_Chemical=x_Current-4;
+				break;
+			case 2:
+				x_Chemical=x_Current-3;
+				break;
+			case 3:
+				x_Chemical=x_Current-2;
+				break;
+			case 4:
+				x_Chemical=x_Current-1;
+				break;
+			case 5:
+				x_Chemical=x_Current;
+				break;
+			case 6:
+				x_Chemical=x_Current+1;
+				break;
+			case 7:
+				x_Chemical=x_Current+2;
+				break;
+			case 8:
+				x_Chemical=x_Current+3;
+				break;
+			case 9:
+				x_Chemical=x_Current+4;
+				break;
+			case 10:
+				x_Chemical=x_Current+5;
+				break;
+			}
+			
+			// checking the y value of chemical coordinate in the scan map
+			// least will be 0 and max will 10 while 5 will be median
+			switch(y_Chemical){
+			case 0:
+				y_Chemical=y_Current-5;
+				break;
+			case 1:
+				y_Chemical=y_Current-4;
+				break;
+			case 2:
+				y_Chemical=y_Current-3;
+				break;
+			case 3:
+				y_Chemical=y_Current-2;
+				break;
+			case 4:
+				y_Chemical=y_Current-1;
+				break;
+			case 5:
+				y_Chemical=y_Current;
+				break;
+			case 6:
+				y_Chemical=y_Current+1;
+				break;
+			case 7:
+				y_Chemical=y_Current+2;
+				break;
+			case 8:
+				y_Chemical=y_Current+3;
+				break;
+			case 9:
+				y_Chemical=y_Current+4;
+				break;
+			case 10:
+				y_Chemical=y_Current+5;
+				break;
+			}
+			
+			// checking whether coordinates are not negative
+			if(x_Chemical>=0 && y_Chemical>=0){
+				//creating a string form of coordinates to store in arraylist
+				chemicalLocation=x_Chemical+","+y_Chemical;
+				// iterating through existing coordinates arraylist for duplicates
+				for(String loc:this.chemicalLocations){
+					if(loc.equals(chemicalLocation)){
+						duplicate=true;
+						break;
+					}
+						
+				}
+				// adding to arraylist if no duplicates found above
+				if(!duplicate)
+					this.chemicalLocations.add(chemicalLocation);
+					duplicate=false;
+			}			
+			
+		}
+		
+	}
+
 	private void clearReadLineBuffer() throws IOException{
 		while(in.ready()){
 			//System.out.println("ROVER_14 clearing readLine()");
