@@ -75,7 +75,7 @@ public class ROVER_14 {
 			if (line.startsWith("SUBMITNAME")) {
 				out.println(rovername); // This sets the name of this instance
 										// of a swarmBot for identifying the
-										// thread to the server
+	 									// thread to the server
 				break;
 			}
 		}
